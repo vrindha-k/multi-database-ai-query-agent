@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     anthropic_model: str = "claude-sonnet-4-6"
     ai_provider: Literal["ollama", "gemini", "anthropic"] = "ollama"
     ollama_base_url: str = "http://localhost:11434"
-    ollama_model: str = "qwen3:4b"
+    ollama_model: str = "qwen3:4b-instruct"
     gemini_api_key: SecretStr | None = None
     gemini_model: str = "gemini-2.5-flash"
     statement_timeout_ms: int = Field(default=3000, ge=10, le=30000)

@@ -29,7 +29,7 @@ py -3.12 --version
 The container-only route does not need host Python. For host development, Python 3.12 or newer
 is required; if your Python launcher uses another installed version, substitute its version.
 
-## 2. Create private credentials and add your API key
+## 2. Create private credentials (AI keys are optional)
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\configure.ps1
@@ -37,7 +37,9 @@ code .env
 ```
 
 The script creates `.env` with random hexadecimal passwords for both administrators and both
-readers. The file is ignored by Git. Add your own key after `ANTHROPIC_API_KEY=` and save it.
+readers. The file is ignored by Git. The default Ollama provider needs no AI key; follow FREE_AI.md
+to start and download its model. For optional Claude, select `AI_PROVIDER=anthropic`, add your own
+key after `ANTHROPIC_API_KEY=`, and save it.
 Do not paste the key in chat, screenshots, committed files or command history. You can leave it
 blank while testing SQL/MCP; natural-language requests will then display setup instructions.
 If `.env` already exists, edit it; the script intentionally refuses to overwrite credentials.
@@ -126,7 +128,8 @@ the tool does not execute `EXPLAIN ANALYZE`.
 
 ## 7. Ask natural-language questions
 
-With a valid key in `.env`, restart the CLI after editing the key. Each successful answer shows
+Start Ollama using FREE_AI.md, or configure the selected cloud provider's key. Restart the CLI
+after editing provider settings. Each successful answer shows
 the executed SQL, rows and truncation indicator, followed by Claude's answer. The exact wording
 and SQL may vary. Compare the result semantics to [EXAMPLES.md](EXAMPLES.md), where the complete
 reference SQL and PostgreSQL-calculated output are provided for each of these questions.

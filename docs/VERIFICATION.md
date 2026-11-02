@@ -1,5 +1,18 @@
 # Executed verification and remaining checks
 
+## Free-provider update (November 2, 2026)
+
+Ollama is now the default, with no API key required. Gemini is an optional cloud provider with
+an eligible free tier; Anthropic remains optional. The updated
+[CI run](https://github.com/vrindha-k/multi-database-ai-query-agent/actions/runs/41500664889)
+passed both the test job and Docker Compose job. The updated local suite reported **75 passed,
+2 skipped** (live-model opt-in and intentionally absent administrator URL). New tests cover Ollama HTTP payloads, Gemini
+SDK response objects and thought signatures, provider quota/error handling, enforced selection,
+turn budgets and real MCP/PostgreSQL calls with mocked model replies. Live Gemini was not called
+because no Google key was supplied. See [FREE_AI.md](FREE_AI.md) for the updated setup.
+
+The original verification record follows.
+
 Verified locally on **November 1, 2026**, on Windows, using workspace-local Python 3.12.13,
 PostgreSQL 17.6, official MCP SDK 1.30.0, Anthropic SDK 0.125.0, SQLAlchemy 2.1.6,
 psycopg 3.3.6 and SQLGlot 30.27.0. Exact transitive versions are in `uv.lock`.

@@ -7,7 +7,7 @@
 ![Claude](https://img.shields.io/badge/Claude-Anthropic-D97757)
 ![License](https://img.shields.io/badge/License-MIT-green)
 
-Ask questions across independent PostgreSQL databases. Claude discovers schemas through a real
+Ask questions across independent PostgreSQL databases. An AI model discovers schemas through a real
 Model Context Protocol server, writes analytical SQL, and receives bounded results from a
 read-only execution layer. A Rich CLI shows the executed SQL, result tables, and the AI answer.
 
@@ -52,7 +52,8 @@ The MCP client launches `python -m app.server` as a child process and initialize
 `ClientSession`. It discovers tool schemas using `list_tools`, sends them to Claude, executes
 each returned `tool_use` through `session.call_tool`, and supplies matching `tool_result` blocks
 in the next message. Database URLs and API keys are not included in tool definitions or results.
-SQL and result data are sent to Claude. The model is instructed to inspect metadata before
+SQL and result data are sent to the selected model: locally for Ollama, externally for Gemini or
+Claude. The model is instructed to inspect metadata before
 querying; this workflow is guidance, while SQL authorization is enforced in code and PostgreSQL.
 
 ## Quick start: Windows 11 + Docker Desktop
@@ -66,7 +67,7 @@ code .env
 docker compose up -d --wait ecommerce hr
 docker compose build agent
 docker compose --profile local-ai up -d --wait ollama
-docker compose exec ollama ollama pull qwen3:4b
+docker compose exec ollama ollama pull qwen3:4b-instruct
 docker compose run --rm -e AI_PROVIDER=ollama agent
 ```
 
@@ -139,7 +140,7 @@ requires an explicitly agreed denominator. Current salary uses the latest effect
 
 | Variable | Purpose / default |
 | --- | --- |
-| `ANTHROPIC_API_KEY` | Secret, optional for diagnostics/tests; required for natural language |
+| `ANTHROPIC_API_KEY` | Optional secret, used only with `AI_PROVIDER=anthropic` |
 | `ANTHROPIC_MODEL` | Configurable Claude model ID; default `claude-sonnet-4-6` |
 | `DATABASES_JSON` | JSON array of `{id, description, url, schemas}`; default `[]` |
 | `DATABASE_CONFIG_FILE` | Optional local JSON array file; takes precedence over JSON env value |
@@ -147,6 +148,9 @@ requires an explicitly agreed denominator. Current salary uses the latest effect
 | `MAX_ROWS` | Default and maximum requested query rows; default 100, hard maximum 1000 |
 | `MAX_CELL_CHARS` | String/cell truncation; default 4000, maximum 10000 |
 | `MAX_AGENT_TURNS` | Claude round-trip budget; default 12, maximum 30 |
+| `AI_PROVIDER` | `ollama` (default, no key), `gemini` (eligible free tier), or `anthropic` |
+| `OLLAMA_MODEL` | Local model; default `qwen3:4b-instruct` |
+| `GEMINI_API_KEY`, `GEMINI_MODEL` | Optional Gemini key and model; see FREE_AI.md |
 | `ECOMMERCE_ADMIN_PASSWORD`, `HR_ADMIN_PASSWORD` | Compose initialization only |
 | `ECOMMERCE_READER_PASSWORD`, `HR_READER_PASSWORD` | Separate per-database readers |
 | `ADMIN_URL` | Native/CI seed script only; never required by the app |

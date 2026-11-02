@@ -69,7 +69,7 @@ class OllamaProvider:
                     "tools": definitions,
                     "stream": False,
                     "think": False,
-                    "options": {"temperature": 0, "num_ctx": 8192},
+                    "options": {"temperature": 0, "num_ctx": 8192, "num_predict": 512},
                 },
             )
             if response.status_code == 404:
@@ -78,6 +78,11 @@ class OllamaProvider:
             data = response.json()
             if data.get("error") or not data.get("done"):
                 raise ProviderError("Ollama did not finish the response; retry a smaller question")
+            if data.get("done_reason") == "length":
+                raise ProviderError(
+                    "Local model hit its response-token limit. Use the recommended instruct "
+                    "model or ask a narrower question."
+                )
             message = data["message"]
             history.append(message)
             calls = [
@@ -87,8 +92,9 @@ class OllamaProvider:
             return Turn(message.get("content", ""), calls)
         except httpx.ConnectError:
             raise ProviderError(
-                "Ollama is not reachable. Start Ollama and check OLLAMA_BASE_URL. "
-                "For Docker use http://host.docker.internal:11434."
+                "Ollama is not reachable. Start the local-ai Docker service and pull the model "
+                "using docs/FREE_AI.md. Docker uses http://ollama:11434; a Windows-hosted "
+                "Ollama uses http://host.docker.internal:11434."
             ) from None
         except httpx.TimeoutException:
             raise ProviderError(

@@ -28,6 +28,7 @@ async def test_ollama_real_http_contract_and_mcp_loop():
         body = json.loads(request.content)
         requests.append(body)
         if len(requests) == 1:
+            assert body["options"]["num_predict"] == 512
             assert body["tools"][0]["function"]["name"] == "run_query"
             return httpx.Response(
                 200,

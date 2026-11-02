@@ -12,7 +12,7 @@ jobs:
         run: |
           printf 'ECOMMERCE_ADMIN_PASSWORD=%s\nECOMMERCE_READER_PASSWORD=%s\nHR_ADMIN_PASSWORD=%s\nHR_READER_PASSWORD=%s\nAI_PROVIDER=ollama\n' "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" > .env
       - run: docker compose --profile local-ai up -d --wait ecommerce hr ollama
-      - run: docker compose exec -T ollama ollama pull qwen3:4b
+      - run: docker compose exec -T ollama ollama pull qwen3:4b-instruct
       - run: docker compose build agent
       - name: Real natural language through Ollama, MCP and PostgreSQL
         run: docker compose run --rm -T -e RUN_LIVE_OLLAMA=1 -e AI_PROVIDER=ollama -e OLLAMA_BASE_URL=http://ollama:11434 agent python -m pytest -q -m live_ollama

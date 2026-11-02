@@ -13,7 +13,7 @@ project folder, run these one at a time:
 ```powershell
 docker compose build agent
 docker compose --profile local-ai up -d --wait ollama
-docker compose exec ollama ollama pull qwen3:4b
+docker compose exec ollama ollama pull qwen3:4b-instruct
 docker compose run --rm -e AI_PROVIDER=ollama agent
 ```
 
@@ -49,7 +49,7 @@ Stop the local model container with `docker compose stop ollama`; the databases 
 
 ### If Ollama is installed on Windows instead
 
-Start the Ollama Windows application and run `ollama pull qwen3:4b`. Point the Docker client to
+Start the Ollama Windows application and run `ollama pull qwen3:4b-instruct`. Point the Docker client to
 your host's Ollama service:
 
 ```powershell
@@ -99,7 +99,7 @@ on your machine. Both options still apply the same SQL parser, database permissi
 | Variable | Default | Meaning |
 | --- | --- | --- |
 | `AI_PROVIDER` | `ollama` | `ollama`, `gemini`, or `anthropic`; no automatic paid fallback |
-| `OLLAMA_MODEL` | `qwen3:4b` | Locally downloaded model with tool calling support |
+| `OLLAMA_MODEL` | `qwen3:4b-instruct` | Locally downloaded model with tool calling support |
 | `OLLAMA_BASE_URL` | `http://localhost:11434` | Native Python Ollama address |
 | `OLLAMA_DOCKER_URL` | `http://ollama:11434` | Compose override for Ollama address |
 | `GEMINI_API_KEY` | empty | Private Google AI Studio key; only needed for Gemini |
