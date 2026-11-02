@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+*secrets*.json
+databases.local.json
+.venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+dist/
+build/
+pgdata/
+*.log

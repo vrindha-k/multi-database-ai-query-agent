@@ -1,0 +1,54 @@
+services:
+  ecommerce:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: ecommerce
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${ECOMMERCE_ADMIN_PASSWORD:?Run scripts/configure.ps1 first}
+      READER_USER: ecommerce_reader
+      READER_PASSWORD: ${ECOMMERCE_READER_PASSWORD:?Run scripts/configure.ps1 first}
+    ports: ["127.0.0.1:5541:5432"]
+    volumes:
+      - ecommerce_data:/var/lib/postgresql/data
+      - ./db/init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+      - ./db/ecommerce.sql:/seed/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d ecommerce"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    command: ["postgres", "-c", "max_connections=30", "-c", "shared_buffers=128MB"]
+  hr:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: hr
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${HR_ADMIN_PASSWORD:?Run scripts/configure.ps1 first}
+      READER_USER: hr_reader
+      READER_PASSWORD: ${HR_READER_PASSWORD:?Run scripts/configure.ps1 first}
+    ports: ["127.0.0.1:5542:5432"]
+    volumes:
+      - hr_data:/var/lib/postgresql/data
+      - ./db/init.sh:/docker-entrypoint-initdb.d/01-init.sh:ro
+      - ./db/hr.sql:/seed/schema.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d hr"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+    command: ["postgres", "-c", "max_connections=30", "-c", "shared_buffers=128MB"]
+  agent:
+    build: .
+    env_file: .env
+    environment:
+      DATABASES_JSON: >-
+        [{"id":"ecommerce","description":"Synthetic commerce analytics; dates in 2025","url":"postgresql+psycopg://ecommerce_reader:${ECOMMERCE_READER_PASSWORD}@ecommerce:5432/ecommerce","schemas":["public"]},{"id":"hr","description":"Synthetic HR analytics; dates in 2025","url":"postgresql+psycopg://hr_reader:${HR_READER_PASSWORD}@hr:5432/hr","schemas":["public"]}]
+    depends_on:
+      ecommerce: {condition: service_healthy}
+      hr: {condition: service_healthy}
+    stdin_open: true
+    tty: true
+    profiles: ["cli"]
+volumes:
+  ecommerce_data:
+  hr_data:
