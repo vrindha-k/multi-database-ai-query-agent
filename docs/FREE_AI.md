@@ -120,6 +120,13 @@ errors, model errors, turn budgets and ungrounded replies. PostgreSQL integratio
 Ollama-format replies through real MCP calls against both databases while mocking the model
 boundary. These tests do not prove the quality of every local model or a live Gemini API key.
 
+A [real local-model smoke test](https://github.com/vrindha-k/multi-database-ai-query-agent/actions/runs/41502975859)
+passed using Docker, `qwen3:4b-instruct`, actual MCP calls and PostgreSQL: the natural-language
+order-count question produced the verified result and answer **720**. This required no API key.
+The optional `Local AI smoke test (no API key)` workflow can repeat it. Live Gemini remains
+untested without your own key. Use the explicit `-instruct` model tag: the generic 4b thinking tag
+timed out during verification. Generation is bounded to 512 tokens per model response.
+
 Primary references: [Ollama tool calling](https://docs.ollama.com/capabilities/tool-calling),
 [Gemini function calling](https://ai.google.dev/gemini-api/docs/function-calling),
 [Gemini pricing](https://ai.google.dev/gemini-api/docs/pricing).

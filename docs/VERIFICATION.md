@@ -11,6 +11,13 @@ SDK response objects and thought signatures, provider quota/error handling, enfo
 turn budgets and real MCP/PostgreSQL calls with mocked model replies. Live Gemini was not called
 because no Google key was supplied. See [FREE_AI.md](FREE_AI.md) for the updated setup.
 
+The [live local-model smoke test](https://github.com/vrindha-k/multi-database-ai-query-agent/actions/runs/41502975859)
+also **passed**: Docker ran `qwen3:4b-instruct`, the model invoked real MCP/PostgreSQL tools,
+and both its query result and final answer contained the verified **720 orders** count.
+No API key or paid model service was used. The first attempt with the `qwen3:4b` tag timed out;
+switching to the explicit non-thinking instruct variant and bounding output tokens resolved it.
+This verifies the basic local inference pipeline, not arbitrary questions or hardware performance.
+
 The original verification record follows.
 
 Verified locally on **November 1, 2026**, on Windows, using workspace-local Python 3.12.13,
