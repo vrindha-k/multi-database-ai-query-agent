@@ -16,7 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 class DatabaseUnavailable(RuntimeError):
-    pass
+    def __init__(self, message: str, sqlstate: str | None = None):
+        super().__init__(message)
+        self.sqlstate = sqlstate
 
 
 class Registry:
@@ -81,12 +83,19 @@ class Registry:
                         "Database role must have SELECT-only application privileges"
                     )
                 yield conn
-        except SQLAlchemyError:
+        except SQLAlchemyError as exc:
             # Never include driver exception text: it can contain SQL, literals and DSNs.
             logger.warning("Database operation failed", extra={"database_id": database_id})
+            sqlstate = getattr(getattr(exc, "orig", None), "sqlstate", None)
+            if sqlstate == "57014":
+                raise DatabaseUnavailable(
+                    "Query exceeded its statement timeout; simplify the query.",
+                    sqlstate,
+                ) from None
             raise DatabaseUnavailable(
                 "Database operation failed (connection, permissions, syntax or timeout); "
-                "check configuration or revise the query."
+                "check configuration or revise the query.",
+                sqlstate,
             ) from None
 
     def tables(self, conn: Connection, database_id: str, schema_name: str | None = None) -> list:
@@ -112,9 +121,18 @@ class Registry:
         for key, config in self.configs.items():
             try:
                 with self.connection(key) as conn:
-                    schemas = sorted({t["schema_name"] for t in self.tables(conn, key)})
+                    schemas = list(
+                        conn.scalars(
+                            text("""
+                        SELECT nspname FROM pg_catalog.pg_namespace
+                        WHERE nspname=ANY(:schemas) AND has_schema_privilege(oid,'USAGE')
+                        ORDER BY nspname
+                    """),
+                            {"schemas": config.schemas},
+                        )
+                    )
                 available = True
-            except DatabaseUnavailable:
+            except (DatabaseUnavailable, QueryRejected):
                 available, schemas = False, []
             result.append(
                 {

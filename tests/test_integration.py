@@ -65,12 +65,13 @@ def test_statement_timeout(registry):
     settings = registry.settings.model_copy(update={"statement_timeout_ms": 10})
     bounded = Registry(settings)
     try:
-        with pytest.raises(DatabaseUnavailable, match="timeout"):
+        with pytest.raises(DatabaseUnavailable, match="timeout") as error:
             bounded.run_query(
                 "hr",
                 "SELECT count(*) FROM employees a CROSS JOIN employees b "
                 "CROSS JOIN employees c CROSS JOIN employees d CROSS JOIN employees e",
             )
+        assert error.value.sqlstate == "57014"
     finally:
         bounded.close()
 

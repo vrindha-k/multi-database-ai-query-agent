@@ -10,7 +10,7 @@ psycopg 3.3.6 and SQLGlot 30.27.0. Exact transitive versions are in `uv.lock`.
 | --- | --- |
 | Dependency installation | `uv sync --extra dev` completed successfully |
 | Ruff lint | `ruff check .` passed |
-| Test suite | `python -m pytest -q`: **66 passed**, no skips, in 16.37 seconds |
+| Test suite | Final `python -m pytest -q`: **66 passed**, no skips, in 16.64 seconds |
 | Native PostgreSQL | Two independent databases initialized successfully in a local PostgreSQL 17.6 cluster |
 | Reader authentication | SCRAM required for both readers; wrong-password test returned a sanitized failure |
 | Discovery | Six tables per database, dynamic columns, primary/foreign keys and indexes verified |
@@ -24,6 +24,9 @@ psycopg 3.3.6 and SQLGlot 30.27.0. Exact transitive versions are in `uv.lock`.
 | CLI | Actual CLI subprocess tested with help, exit, database switching, SELECT and rejected DELETE |
 | Capture | `scripts/capture_demo.py` generated text/SVG from real MCP/PostgreSQL responses |
 | Compose configuration | Official Docker Compose v5.6.1 parsed `docker-compose.yml` with `config --quiet`, exit code 0 |
+| Setup script | Windows PowerShell generated a valid environment with two database URLs and four distinct random credentials |
+| CI configuration | Workflow YAML and its embedded Python setup block parsed successfully |
+| Initialization shell | Git Bash `bash -n db/init.sh` passed |
 
 The test suite includes the privileged-role test because a local test-only `ADMIN_URL` was
 supplied. It is deliberately not part of the application configuration. Without it, that one

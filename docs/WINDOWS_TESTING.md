@@ -264,6 +264,22 @@ authentication failures, restore the original passwords or reset the synthetic v
 The delivered repository is local. No public repository or push is implied by local commits.
 Review the source, verification report and staged file names. Never add `.env` with `-f`.
 
+If Git reports “dubious ownership” because this copy was created by a workspace account, mark
+only this reviewed project folder as trusted, then retry:
+
+```powershell
+git config --global --add safe.directory (Get-Location).Path
+```
+
+If you extracted the source ZIP instead of using the delivered working repository, initialize
+your own local history first:
+
+```powershell
+git init -b main
+git add .
+git commit -m "Build schema-discovering MCP PostgreSQL analytics agent"
+```
+
 ```powershell
 git status --short
 git log --oneline
