@@ -1,5 +1,6 @@
 # Multi-Database AI Query Agent (MCP)
 
+[![CI](https://github.com/vrindha-k/multi-database-ai-query-agent/actions/workflows/ci.yml/badge.svg)](https://github.com/vrindha-k/multi-database-ai-query-agent/actions/workflows/ci.yml)
 ![Python](https://img.shields.io/badge/Python-3.12%2B-3776AB?logo=python&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)
 ![MCP](https://img.shields.io/badge/MCP-stdio-black)

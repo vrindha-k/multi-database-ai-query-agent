@@ -39,15 +39,23 @@ script executes successfully in a Linux container.
 
 ## Not yet verified
 
-- **Docker build and runtime:** Docker Desktop/Engine is unavailable in this execution session.
-  Compose syntax was checked, but no image build or container execution is claimed. A separate
-  GitHub Actions job is configured to build and run Compose integration tests.
 - **Live Claude generation:** no Anthropic API key was provided. API orchestration is implemented
   and tested using mocked SDK response blocks; no paid request or live model answer is claimed.
-- **Hosted GitHub Actions:** configured but cannot run until publication. No hosted green status
-  is claimed.
-- **Public GitHub publication:** requires the user's explicit approval before creating/pushing
-  the public repository. No remote publication is implied by local commits.
+
+## GitHub publication and Docker verification
+
+Published with the user's approval to
+[vrindha-k/multi-database-ai-query-agent](https://github.com/vrindha-k/multi-database-ai-query-agent).
+The [first hosted CI run](https://github.com/vrindha-k/multi-database-ai-query-agent/actions/runs/41386163760)
+passed both jobs:
+
+- **test:** Ruff, unit/MCP tests, fresh PostgreSQL initialization and integration tests, 33 seconds.
+- **compose:** both PostgreSQL containers became healthy, the application image built, and
+  integration tests passed inside the nonroot application container, 45 seconds.
+
+Docker execution is therefore verified on the hosted Linux runner, including `db/init.sh` and
+the Compose setup. Docker Desktop execution on this Windows machine remains a user-side check.
+The remote file tree was inspected: `.env`, virtual environments and local credentials were absent.
 
 ## Reproduce
 
