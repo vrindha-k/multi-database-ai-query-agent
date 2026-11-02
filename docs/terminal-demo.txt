@@ -1,0 +1,30 @@
+Multi-Database AI Query Agent
+Actual MCP stdio + PostgreSQL diagnostic capture (no Claude API)
+ecommerce: available=True; schemas=public
+hr: available=True; schemas=public
+
+ecommerce> Which five products generated the most completed-order revenue?
++-----------------------+
+| name       | revenue  |
+|------------+----------|
+| Product 11 | 25080.00 |
+| Product 08 | 16320.00 |
+| Product 10 | 15600.00 |
+| Product 12 | 12960.00 |
+| Product 07 | 11760.00 |
++-----------------------+
+Rows: 5; truncated=False
+
+hr> What is active headcount by department as of December 31, 2025?
++-------------------------+
+| name        | headcount |
+|-------------+-----------|
+| Engineering | 20        |
+| Operations  | 10        |
+| People      | 20        |
+| Sales       | 20        |
++-------------------------+
+Rows: 4; truncated=False
+
+Unsafe SQL test: DELETE FROM customers
+Only one SELECT or read-only WITH query is allowed

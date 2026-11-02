@@ -1,0 +1,57 @@
+name: CI
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      ADMIN_URL: postgresql://postgres:${{ github.run_id }}-${{ github.run_attempt }}@localhost:5432/postgres
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: ${{ github.run_id }}-${{ github.run_attempt }}
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 3s --health-timeout 3s --health-retries 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.11.23"
+      - run: uv python install 3.12
+      - run: uv sync --frozen --extra dev
+      - run: uv run ruff check . && uv run ruff format --check .
+      - name: Unit, security and stdio MCP tests
+        run: uv run pytest -q -m 'not integration'
+      - name: Seed ephemeral databases and readers
+        run: |
+          uv run python - <<'PY'
+          import json, secrets
+          from pathlib import Path
+          passwords = {db: secrets.token_hex(24) for db in ('ecommerce', 'hr')}
+          databases = [dict(id=db, description='CI synthetic '+db, schemas=['public'],
+              url=f'postgresql+psycopg://{db}_reader:{pw}@localhost:5432/{db}')
+              for db,pw in passwords.items()]
+          lines = [f'{db.upper()}_READER_PASSWORD={pw}' for db,pw in passwords.items()]
+          lines.append("DATABASES_JSON='"+json.dumps(databases)+"'")
+          Path('.env').write_text('\n'.join(lines)+'\n')
+          PY
+          uv run python scripts/seed.py
+      - name: PostgreSQL integration tests
+        run: uv run pytest -q -m integration
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Create ephemeral Compose credentials
+        shell: bash
+        run: |
+          printf 'ECOMMERCE_ADMIN_PASSWORD=%s\nECOMMERCE_READER_PASSWORD=%s\nHR_ADMIN_PASSWORD=%s\nHR_READER_PASSWORD=%s\nANTHROPIC_API_KEY=\n' "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" "$(openssl rand -hex 24)" > .env
+      - run: docker compose up -d --wait ecommerce hr
+      - run: docker compose build agent
+      - run: docker compose run --rm -T agent python -m pytest -q -m integration
+      - if: always()
+        run: docker compose down -v
