@@ -1,5 +1,9 @@
 # Windows 11: test every component
 
+**No paid API required:** follow [FREE_AI.md](FREE_AI.md) for the default local Ollama option or
+the optional Google Gemini free tier. Claude-specific key instructions below apply only when
+you explicitly select `AI_PROVIDER=anthropic`. Database and `/sql` instructions are unchanged.
+
 Use PowerShell in VS Code. Commands in this guide assume the repository root is the current
 directory. A first run downloads container images and Python packages and needs internet access.
 Docker Desktop must be running Linux containers. All database data is synthetic.

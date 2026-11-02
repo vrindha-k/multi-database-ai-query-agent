@@ -11,8 +11,12 @@ Ask questions across independent PostgreSQL databases. Claude discovers schemas 
 Model Context Protocol server, writes analytical SQL, and receives bounded results from a
 read-only execution layer. A Rich CLI shows the executed SQL, result tables, and the AI answer.
 
+**Free AI is now the default:** run Ollama locally with no API key, or use Google's eligible Gemini
+free tier with your own key. Claude is optional. Start with the
+**[free AI setup guide](docs/FREE_AI.md)** for exact Docker commands and billing/data limits.
+
 **Portfolio demonstration using synthetic data.** This is not a security-certified database
-gateway. Live Claude answers require your own API key and incur API charges. See the
+gateway. Optional live Claude answers require your own API key and incur API charges. See the
 [verification report](docs/VERIFICATION.md) for what was actually executed, including limitations.
 
 ## Features
@@ -58,10 +62,12 @@ Open PowerShell in this repository. Start Docker Desktop and wait for its engine
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\scripts\configure.ps1
 code .env
-# Add ANTHROPIC_API_KEY in the editor, then save. Never commit .env.
+# Ollama needs no API key. Keep .env private.
 docker compose up -d --wait ecommerce hr
 docker compose build agent
-docker compose run --rm agent
+docker compose --profile local-ai up -d --wait ollama
+docker compose exec ollama ollama pull qwen3:4b
+docker compose run --rm -e AI_PROVIDER=ollama agent
 ```
 
 `configure.ps1` generates four random credentials in the ignored `.env`. It refuses to overwrite

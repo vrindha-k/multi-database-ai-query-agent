@@ -10,6 +10,7 @@ from rich.table import Table
 
 from app.agent import Agent, mcp_session
 from app.config import get_settings
+from app.providers import GeminiProvider, OllamaProvider, ProviderError, ToolAgent
 
 console = Console(markup=False)
 
@@ -45,11 +46,22 @@ async def main() -> None:
         selected = None
         client = (
             AsyncAnthropic(api_key=settings.anthropic_api_key.get_secret_value())
-            if settings.anthropic_api_key
+            if settings.ai_provider == "anthropic" and settings.anthropic_api_key
             else None
         )
-        agent = Agent(session, client, settings.anthropic_model, settings.max_agent_turns)
-        console.print("/help for commands. Natural-language questions require ANTHROPIC_API_KEY.")
+        provider = None
+        agent = None
+        if settings.ai_provider == "ollama":
+            provider = OllamaProvider(settings.ollama_base_url, settings.ollama_model)
+        elif settings.ai_provider == "gemini" and settings.gemini_api_key:
+            provider = GeminiProvider(
+                settings.gemini_api_key.get_secret_value(), settings.gemini_model
+            )
+        if provider:
+            agent = ToolAgent(session, provider, settings.max_agent_turns)
+        elif client:
+            agent = Agent(session, client, settings.anthropic_model, settings.max_agent_turns)
+        console.print(f"AI provider: {settings.ai_provider}. /help for commands.")
         try:
             while True:
                 question = console.input(f"\n{selected or 'auto'}> ").strip()
@@ -88,9 +100,10 @@ async def main() -> None:
                         display(await call(name, args))
                     elif question.startswith("/"):
                         console.print("Unknown command; use /help")
-                    elif not client:
+                    elif not agent:
                         console.print(
-                            "Set ANTHROPIC_API_KEY in .env; /sql diagnostics work without it."
+                            "Set the selected provider's API key, or use AI_PROVIDER=ollama "
+                            "for local AI without a key. /sql works without AI."
                         )
                     else:
                         answer = await agent.ask(question, selected)
@@ -98,6 +111,8 @@ async def main() -> None:
                             if entry["tool"] in {"run_query", "explain_query"}:
                                 display(entry["result"])
                         console.print("AI Answer:\n" + answer.text)
+                except (ProviderError, ValueError) as exc:
+                    console.print(str(exc), style="red")
                 except Exception:
                     console.print(
                         "Request failed. Check configuration, connectivity or narrow the "
@@ -107,6 +122,8 @@ async def main() -> None:
         finally:
             if client:
                 await client.close()
+            if provider:
+                await provider.close()
 
 
 if __name__ == "__main__":

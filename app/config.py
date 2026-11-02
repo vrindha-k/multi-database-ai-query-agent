@@ -3,6 +3,7 @@
 import json
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 
 from pydantic import BaseModel, Field, SecretStr, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -30,6 +31,11 @@ class Settings(BaseSettings):
     database_config_file: Path | None = None
     anthropic_api_key: SecretStr | None = None
     anthropic_model: str = "claude-sonnet-4-6"
+    ai_provider: Literal["ollama", "gemini", "anthropic"] = "ollama"
+    ollama_base_url: str = "http://localhost:11434"
+    ollama_model: str = "qwen3:4b"
+    gemini_api_key: SecretStr | None = None
+    gemini_model: str = "gemini-2.5-flash"
     statement_timeout_ms: int = Field(default=3000, ge=10, le=30000)
     max_rows: int = Field(default=100, ge=1, le=1000)
     max_cell_chars: int = Field(default=4000, ge=100, le=10000)

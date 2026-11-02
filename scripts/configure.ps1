@@ -16,6 +16,11 @@ $dbs = @(
     @{id='hr'; description='Synthetic HR analytics; 2025'; url="postgresql+psycopg://hr_reader:${hrReader}@localhost:5542/hr"; schemas=@('public')}
 ) | ConvertTo-Json -Compress
 $content = @"
+AI_PROVIDER=ollama
+OLLAMA_BASE_URL=http://localhost:11434
+OLLAMA_MODEL=qwen3:4b
+GEMINI_API_KEY=
+GEMINI_MODEL=gemini-2.5-flash
 ANTHROPIC_API_KEY=
 ANTHROPIC_MODEL=claude-sonnet-4-6
 ECOMMERCE_ADMIN_PASSWORD=$ecAdmin
@@ -27,4 +32,4 @@ STATEMENT_TIMEOUT_MS=3000
 MAX_ROWS=100
 "@
 [IO.File]::WriteAllText((Join-Path $PWD '.env'), $content, (New-Object Text.UTF8Encoding $false))
-Write-Host 'Created ignored .env with random, separate demo credentials. Add your API key in VS Code.'
+Write-Host 'Created private demo credentials. Ollama is the default AI provider; no API key required.'

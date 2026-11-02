@@ -1,5 +1,9 @@
 # Component walkthrough and interview preparation
 
+The project now also supports local Ollama (default, no API key) and optional Google Gemini.
+See [FREE_AI.md](FREE_AI.md). Their bounded tool loops in `app/providers.py` call the same real
+MCP server. The Claude-specific architecture below describes the original optional provider.
+
 ## The problem and the boundary
 
 The project turns natural-language analytics questions into PostgreSQL results without assuming

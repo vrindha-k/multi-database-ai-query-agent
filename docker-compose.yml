@@ -41,6 +41,7 @@ services:
     build: .
     env_file: .env
     environment:
+      OLLAMA_BASE_URL: ${OLLAMA_DOCKER_URL:-http://ollama:11434}
       DATABASES_JSON: >-
         [{"id":"ecommerce","description":"Synthetic commerce analytics; dates in 2025","url":"postgresql+psycopg://ecommerce_reader:${ECOMMERCE_READER_PASSWORD}@ecommerce:5432/ecommerce","schemas":["public"]},{"id":"hr","description":"Synthetic HR analytics; dates in 2025","url":"postgresql+psycopg://hr_reader:${HR_READER_PASSWORD}@hr:5432/hr","schemas":["public"]}]
     depends_on:
@@ -49,6 +50,18 @@ services:
     stdin_open: true
     tty: true
     profiles: ["cli"]
+  ollama:
+    image: ollama/ollama:latest
+    profiles: ["local-ai"]
+    ports: ["127.0.0.1:11434:11434"]
+    volumes:
+      - ollama_models:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
 volumes:
   ecommerce_data:
   hr_data:
+  ollama_models:
